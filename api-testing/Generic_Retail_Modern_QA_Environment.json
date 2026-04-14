@@ -1,0 +1,34 @@
+{
+  "id": "8b6e-portfolio-env-qa",
+  "name": "Generic Retail Modern QA Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "https://mock-retail-api.example.com",
+      "enabled": true
+    },
+    {
+      "key": "storeId",
+      "value": "1101",
+      "enabled": true
+    },
+    {
+      "key": "laneId",
+      "value": "05",
+      "enabled": true
+    },
+    {
+      "key": "transactionId",
+      "value": "TXN-100045",
+      "enabled": true
+    },
+    {
+      "key": "idempotencyKey",
+      "value": "IDEMP-001",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2026-04-14T00:00:00Z",
+  "_postman_exported_using": "OpenAI"
+}
