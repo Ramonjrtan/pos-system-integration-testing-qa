@@ -1,15 +1,15 @@
 # POS System Integration Testing QA Portfolio
 
-This repository demonstrates a modern **System Integration Testing (SIT)** approach for a transaction-heavy retail platform inspired by the **Stater Brothers ACS 7.0 migration** test plan.
+This repository demonstrates a modern **System Integration Testing (SIT)** approach for a transaction-heavy retail platform inspired by the **Retail POS Platform Migration** test plan.
 
 ## What this portfolio shows
 - End-to-end QA coverage for POS and payment systems
 - Integration validation across POS, middleware, payment gateway, and gift card services
-- Data integrity checks from terminal action to TLOG/reporting
+- Data integrity checks from terminal action to Audit Log/reporting
 - A reusable test case workbook, Postman collection, and architecture diagrams
 
 ## Core business flows
-1. **Sale -> Payment -> Receipt -> TLOG -> Reporting**
+1. **Sale -> Payment -> Receipt -> Audit Log -> Reporting**
 2. **Gift Card Scan -> Prompt -> Activation -> Confirmation**
 3. **Return -> Driver License Capture -> Refund -> Audit Trail**
 4. **Offline/Degraded Processing -> Recovery -> Reconciliation**
@@ -23,8 +23,8 @@ pos-system-integration-testing-qa/
 ├── test-cases/
 │   └── SIT_Test_Cases_Modern.xlsx
 ├── api-testing/
-│   ├── StaterBros_Modern_QA_Postman_Collection.json
-│   └── StaterBros_Modern_QA_Environment.json
+│   ├── Generic_Retail_Modern_QA_Postman_Collection.json
+│   └── Generic_Retail_Modern_QA_Environment.json
 ├── docs/
 │   ├── architecture_overview.png
 │   └── data_flow_diagram.png
@@ -36,7 +36,7 @@ pos-system-integration-testing-qa/
 
 ## QA strategy highlights
 - **Risk-based testing** for payment, gift card, return/refund, and degraded-mode scenarios
-- **API + backend validation** for transaction state, idempotency, and TLOG accuracy
+- **API + backend validation** for transaction state, idempotency, and Audit Log accuracy
 - **Regression-friendly design** with reusable test cases and execution status tracking
 - **Production-minded validation** with online and offline store behavior
 
