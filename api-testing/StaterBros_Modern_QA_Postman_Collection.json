@@ -1,0 +1,365 @@
+{
+  "info": {
+    "name": "Stater Bros Modern QA Collection",
+    "_postman_id": "0d2e329e-portfolio-qa-collection",
+    "description": "Portfolio collection for EFT, gift card, and return/DL integration validation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://mock-retail-api.example.com"
+    },
+    {
+      "key": "storeId",
+      "value": "1101"
+    },
+    {
+      "key": "laneId",
+      "value": "05"
+    },
+    {
+      "key": "transactionId",
+      "value": "TXN-100045"
+    },
+    {
+      "key": "idempotencyKey",
+      "value": "IDEMP-001"
+    }
+  ],
+  "item": [
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Authorize EFT - Approved",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/authorize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "authorize"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storeId\": \"{{storeId}}\",\n  \"laneId\": \"{{laneId}}\",\n  \"transactionId\": \"{{transactionId}}\",\n  \"amount\": 42.17,\n  \"currency\": \"USD\",\n  \"tenderType\": \"DEBIT\",\n  \"cardToken\": \"CARD_APPROVED_01\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200/201\", function () { pm.expect([200,201]).to.include(pm.response.code); });",
+                  "const json = pm.response.json();",
+                  "pm.test(\"authorization approved\", function () { pm.expect(json.status).to.eql(\"APPROVED\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Authorize EFT - Decline",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey}}-DECLINE"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/authorize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "authorize"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storeId\": \"{{storeId}}\",\n  \"laneId\": \"{{laneId}}\",\n  \"transactionId\": \"{{transactionId}}-D\",\n  \"amount\": 19.99,\n  \"currency\": \"USD\",\n  \"tenderType\": \"CREDIT\",\n  \"cardToken\": \"CARD_DECLINE_01\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"decline code returned\", function () { pm.expect([200,402]).to.include(pm.response.code); });",
+                  "const json = pm.response.json();",
+                  "pm.test(\"authorization declined\", function () { pm.expect(json.status).to.eql(\"DECLINED\"); });",
+                  "pm.test(\"reason present\", function () { pm.expect(json.reason || json.velocityMessage).to.exist; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Authorize EFT - Timeout / Retry Probe",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey}}-TIMEOUT"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/authorize?simulate=timeout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "authorize"
+              ],
+              "query": [
+                {
+                  "key": "simulate",
+                  "value": "timeout"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storeId\": \"{{storeId}}\",\n  \"laneId\": \"{{laneId}}\",\n  \"transactionId\": \"{{transactionId}}-T\",\n  \"amount\": 11.5,\n  \"currency\": \"USD\",\n  \"tenderType\": \"DEBIT\",\n  \"cardToken\": \"CARD_TIMEOUT_01\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"timeout or accepted response\", function () { pm.expect([200,202,504]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Gift Cards",
+      "item": [
+        {
+          "name": "Activate Blackhawk Fixed Denomination",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/giftcards/activate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "giftcards",
+                "activate"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storeId\": \"{{storeId}}\",\n  \"laneId\": \"{{laneId}}\",\n  \"transactionId\": \"{{transactionId}}-GC1\",\n  \"barcode\": \"GC_FIXED_01\",\n  \"amount\": 25.0,\n  \"denominationType\": \"FIXED\",\n  \"brand\": \"BLACKHAWK\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"activation response ok\", function () { pm.expect([200,201]).to.include(pm.response.code); });",
+                  "const json = pm.response.json();",
+                  "pm.test(\"gift card activated\", function () { pm.expect(json.status).to.eql(\"ACTIVATED\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reload Blackhawk Card",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/giftcards/reload",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "giftcards",
+                "reload"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storeId\": \"{{storeId}}\",\n  \"laneId\": \"{{laneId}}\",\n  \"transactionId\": \"{{transactionId}}-GC2\",\n  \"barcode\": \"GC_FIXED_01\",\n  \"reloadAmount\": 15.0,\n  \"feeAmount\": 1.0\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"reload response ok\", function () { pm.expect([200,201]).to.include(pm.response.code); });",
+                  "const json = pm.response.json();",
+                  "pm.test(\"reload accepted\", function () { pm.expect(json.status).to.eql(\"RELOADED\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Prevent Duplicate Gift Card Sale",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/giftcards/validate-duplicate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "giftcards",
+                "validate-duplicate"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactionId\": \"{{transactionId}}-GC3\",\n  \"barcode\": \"GC_DUP_01\",\n  \"scanCount\": 2\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test(\"duplicate prevention triggered\", function () { pm.expect(json.allowed).to.eql(false); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Returns and DL",
+      "item": [
+        {
+          "name": "Capture DL During Return",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/returns/dl-capture",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "returns",
+                "dl-capture"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactionId\": \"{{transactionId}}-RET1\",\n  \"source\": \"barcode\",\n  \"state\": \"CA\",\n  \"dlNumber\": \"D1234567\",\n  \"configEnabled\": true\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test(\"DL accepted\", function () { pm.expect(json.accepted).to.eql(true); });",
+                  "pm.test(\"source captured\", function () { pm.expect(json.tlogSource).to.eql(\"barcode\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validate TLOG Entry",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/tlog/{{transactionId}}-RET1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tlog",
+                "{{transactionId}}-RET1"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test(\"TLOG contains DL state\", function () { pm.expect(json.dl.state).to.eql(\"CA\"); });",
+                  "pm.test(\"TLOG contains source\", function () { pm.expect(json.dl.source).to.eql(\"barcode\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
