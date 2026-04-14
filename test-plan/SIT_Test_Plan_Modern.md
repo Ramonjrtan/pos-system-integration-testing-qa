@@ -1,13 +1,13 @@
 # Modern System Integration Test Strategy
 
 ## 1. Overview
-This strategy modernizes the ACS 7.0 migration SIT approach by combining functional, integration, API, data, and regression validation.
+This strategy modernizes the Commerce Platform 7.0 migration SIT approach by combining functional, integration, API, data, and regression validation.
 
 ## 2. Objectives
 - Validate end-to-end business flows
-- Confirm stable integration with EFT, MTX, Blackhawk, and store services
+- Confirm stable integration with EFT, External Host Service, Gift Card Provider, and store services
 - Prevent regressions in production-critical retail workflows
-- Verify TLOG and downstream data integrity
+- Verify Audit Log and downstream data integrity
 
 ## 3. Scope
 ### In scope
@@ -35,14 +35,14 @@ Validate every critical flow across:
 - POS terminal
 - ACS application / store server
 - External service response
-- TLOG / audit record
+- Audit Log / audit record
 - Reporting downstream
 
 ## 6. Risk focus
 Highest risk areas:
 - EFT failures, retries, and duplicate transaction prevention
 - Gift card activation mismatch
-- Return + DL capture + TLOG write behavior
+- Return + DL capture + Audit Log write behavior
 - Offline recovery / reconciliation
 
 ## 7. Exit criteria
